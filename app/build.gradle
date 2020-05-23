@@ -1,6 +1,16 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'build-time-tracker'
+apply plugin: 'com.google.firebase.firebase-perf'
+apply plugin: 'io.gitlab.arturbosch.detekt'
+apply plugin: 'androidx.navigation.safeargs.kotlin'
+apply plugin: 'com.google.firebase.crashlytics'
+apply plugin: 'koin'
+
+apply from: '../config/quality/ktlint.gradle'
+apply from: '../config/quality/checkstyle.gradle'
 
 android {
     compileSdkVersion 29
@@ -8,29 +18,99 @@ android {
 
     defaultConfig {
         applicationId "ru.belyaev.vitaliy.tomtimer"
-        minSdkVersion 22
+        minSdkVersion 21
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
 
+        vectorDrawables.useSupportLibrary = true
+
+        kapt {
+            arguments {
+                arg("room.schemaLocation", "$projectDir/schemas".toString())
+                arg("room.incremental", "true")
+            }
+
+            useBuildCache = false
+        }
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+        kotlinOptions.jvmTarget = "1.8"
+    }
+
+    androidExtensions {
+        experimental = true
+    }
+
     buildTypes {
+        debug {
+            applicationIdSuffix ".dev"
+            versionNameSuffix "-dev"
+            resValue "string", "app_name", "DEV TomTimer"
+            firebaseCrashlytics {
+                mappingFileUploadEnabled false
+            }
+        }
+
         release {
-            minifyEnabled false
+            resValue "string", "app_name", "TomTimer"
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 
+    lintOptions {
+        disable 'InvalidPackage'
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.core:core-ktx:1.2.0'
-    testImplementation 'junit:junit:4.12'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin"
+
+    implementation "androidx.appcompat:appcompat:1.1.0"
+    implementation "androidx.core:core-ktx:1.2.0"
+    implementation "androidx.recyclerview:recyclerview:1.1.0"
+    implementation "androidx.constraintlayout:constraintlayout:1.1.3"
+    implementation "androidx.lifecycle:lifecycle-extensions:$jetpack_lifecycle"
+    implementation "androidx.lifecycle:lifecycle-common-java8:$jetpack_lifecycle"
+    implementation "androidx.navigation:navigation-fragment-ktx:$jetpack_navigation"
+    implementation "androidx.navigation:navigation-ui-ktx:$jetpack_navigation"
+    implementation "com.google.firebase:firebase-analytics:17.4.2"
+    implementation "com.google.firebase:firebase-perf:19.0.7"
+    implementation "com.google.firebase:firebase-crashlytics:17.0.0"
+
+    implementation "androidx.room:room-runtime:$jetpack_room"
+    implementation "androidx.room:room-ktx:$jetpack_room"
+    kapt "androidx.room:room-compiler:$jetpack_room"
+
+    implementation "com.jakewharton.threetenabp:threetenabp:1.2.4"
+
+    implementation "org.koin:koin-core:$koin"
+    implementation "org.koin:koin-core-ext:$koin"
+    implementation "org.koin:koin-android:$koin"
+    implementation "org.koin:koin-androidx-viewmodel:$koin"
+
+    implementation "com.jakewharton.timber:timber:4.7.1"
+    implementation "com.hannesdorfmann:adapterdelegates4:4.3.0"
+    implementation "com.squareup.leakcanary:leakcanary-android:2.3"
+
+    testImplementation "junit:junit:4.13"
+    testImplementation "org.mockito:mockito-core:$mockito"
+    testImplementation "org.mockito:mockito-inline:$mockito"
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
+    testImplementation "androidx.room:room-testing:$jetpack_room"
+    testImplementation("org.threeten:threetenbp:1.4.4") {
+        exclude group: 'com.jakewharton.threetenabp', module: 'threetenabp'
+    }
+
+    androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }
