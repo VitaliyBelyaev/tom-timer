@@ -30,8 +30,9 @@
             android:authorities="${applicationId}.androidx-startup"
             android:exported="false"
             tools:node="merge">
-            <meta-data android:name="dev.zacsweers.ticktock.android.tzdb.startup.AndroidTzdbRulesInitializer"
-                tools:node="remove"/>
+            <meta-data
+                android:name="dev.zacsweers.ticktock.android.tzdb.startup.AndroidTzdbRulesInitializer"
+                tools:node="remove" />
         </provider>
     </application>
 </manifest>
