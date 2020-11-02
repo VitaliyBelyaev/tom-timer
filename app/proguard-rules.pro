@@ -27,3 +27,5 @@
     public <methods>;
     protected <methods>;
 }
+
+-keep class dev.zacsweers.ticktock.runtime.TickTockZoneRulesProvider { *; }
