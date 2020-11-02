@@ -19,3 +19,28 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+
+-keep public class ru.belyaev.vitaliy.tomtimer.** {
+    public static <fields>;
+    public static <methods>;
+    public <methods>;
+    protected <methods>;
+}
+
+# Toothpick
+-dontwarn javax.inject.**
+-dontwarn javax.annotation.**
+-keep class javax.inject.**
+-keep class javax.annotation.**
+-keepclassmembers class * {
+	@javax.inject.Inject <init>(...);
+	@javax.inject.Inject <init>();
+	@javax.inject.Inject <fields>;
+	public <init>(...);
+}
+-keepnames @toothpick.InjectConstructor class *
+-keepclasseswithmembernames class * { toothpick.ktp.delegate.* *; }
+-keepclassmembers class * {
+    toothpick.ktp.delegate.* *;
+}
